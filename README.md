@@ -6,8 +6,15 @@ im Browser, keine Installation nötig.
 
 ## Was das Programm kann
 
-- Vorlagen für **Flyer**, **Visitenkarten**, **Magazin-Seiten** und
+- Vorlagen für **Flyer**, **Visitenkarten**, **Magazin-Seiten**,
   **Social-Media-Posts** (Instagram Post/Story, Facebook, YouTube-Thumbnail)
+  und **weitere Vorlagen** im Publisher-Stil (Broschüre, Newsletter,
+  Einladungskarte, Grußkarte)
+- **Leeres Dokument erstellen**: eigene Seitengröße wählen (Standardformate
+  oder frei in mm/px) und mit weißem oder eigenem Hintergrund von Null
+  anfangen
+- **Cliparts**: Formen, Sterne & Symbole, Rahmen & Linien, Sprechblasen &
+  Pfeile – frei einfärbbar und skalierbar
 - Texte und eigene Fotos hinzufügen, verschieben, Farbe/Schrift ändern
 - Ebenen-Reihenfolge, Rückgängig/Wiederholen, Zoom
 - Eigene Entwürfe speichern und später weiterbearbeiten

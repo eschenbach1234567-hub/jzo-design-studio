@@ -423,6 +423,104 @@ async function openTemplate(templateId) {
   renderPropertiesPanel();
 }
 
+const BLANK_FORMATS = [
+  { key: "a4-portrait", label: "A4 Hochformat (210×297 mm)", unit: "mm", widthMM: 210, heightMM: 297 },
+  { key: "a4-landscape", label: "A4 Querformat (297×210 mm)", unit: "mm", widthMM: 297, heightMM: 210 },
+  { key: "a5-portrait", label: "A5 Hochformat (148×210 mm)", unit: "mm", widthMM: 148, heightMM: 210 },
+  { key: "a5-landscape", label: "A5 Querformat (210×148 mm)", unit: "mm", widthMM: 210, heightMM: 148 },
+  { key: "a3-poster", label: "A3 Poster (297×420 mm)", unit: "mm", widthMM: 297, heightMM: 420 },
+  { key: "card", label: "Visitenkarte (85×55 mm)", unit: "mm", widthMM: 85, heightMM: 55 },
+  { key: "square-social", label: "Quadratisch – Social Media (1080×1080 px)", unit: "px", width: 1080, height: 1080 },
+  { key: "story", label: "Story – Instagram/Facebook (1080×1920 px)", unit: "px", width: 1080, height: 1920 },
+  { key: "fb-post", label: "Facebook-Post (1200×630 px)", unit: "px", width: 1200, height: 630 },
+  { key: "custom", label: "Eigene Größe …", unit: "custom" }
+];
+
+let blankBgColor = "#ffffff";
+
+function openBlankDesignModal() {
+  blankBgColor = "#ffffff";
+  const options = BLANK_FORMATS.map((f) => `<option value="${f.key}">${f.label}</option>`).join("");
+  const bgSwatches = ["#ffffff", "#f2f2f0", BRAND.bg, BRAND.bgSoft, BRAND.gold1];
+  openModal("Leeres Dokument erstellen", `
+    <div class="prop-row">
+      <label>Format</label>
+      <select id="blank-format">${options}</select>
+    </div>
+    <div class="prop-row" id="blank-custom-row" style="display:none;">
+      <label>Eigene Größe</label>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <input type="number" id="blank-width" min="10" max="10000" value="1000" style="flex:1;">
+        <span style="color:var(--text-muted);">×</span>
+        <input type="number" id="blank-height" min="10" max="10000" value="1000" style="flex:1;">
+        <select id="blank-unit" style="flex:1;">
+          <option value="mm">mm</option>
+          <option value="px">px</option>
+        </select>
+      </div>
+    </div>
+    <div class="prop-row">
+      <label>Hintergrund</label>
+      <div class="swatch-row" id="blank-bg-swatches" style="margin-bottom:8px;">
+        ${bgSwatches.map((c) => `<span class="swatch" style="background:${c}" data-bgcolor="${c}"></span>`).join("")}
+      </div>
+      <input type="color" id="blank-bg-color" value="#ffffff">
+    </div>
+  `, [
+    { label: "Abbrechen", className: "btn-outline", onClick: (close) => close() },
+    { label: "Erstellen", className: "btn-primary", onClick: (close) => {
+      const formatKey = $("#blank-format").value;
+      const format = BLANK_FORMATS.find((f) => f.key === formatKey);
+      let cfg;
+      if (format.unit === "custom") {
+        const unit = $("#blank-unit").value;
+        const w = Math.max(10, +$("#blank-width").value || 1000);
+        const h = Math.max(10, +$("#blank-height").value || 1000);
+        cfg = unit === "mm"
+          ? { unit: "mm", width: mm(w), height: mm(h), widthMM: w, heightMM: h }
+          : { unit: "px", width: Math.round(w), height: Math.round(h) };
+      } else if (format.unit === "mm") {
+        cfg = { unit: "mm", width: mm(format.widthMM), height: mm(format.heightMM), widthMM: format.widthMM, heightMM: format.heightMM };
+      } else {
+        cfg = { unit: "px", width: format.width, height: format.height };
+      }
+      cfg.name = "Leeres Dokument";
+      cfg.background = blankBgColor;
+      openBlankCanvas(cfg);
+      close();
+    }}
+  ]);
+  $("#blank-format").addEventListener("change", (e) => {
+    $("#blank-custom-row").style.display = e.target.value === "custom" ? "block" : "none";
+  });
+  $$('#blank-bg-swatches .swatch').forEach((s) => s.addEventListener("click", () => {
+    blankBgColor = s.dataset.bgcolor;
+    $("#blank-bg-color").value = /^#([0-9a-f]{6})$/i.test(blankBgColor) ? blankBgColor : "#ffffff";
+  }));
+  $("#blank-bg-color").addEventListener("input", (e) => { blankBgColor = e.target.value; });
+}
+
+async function openBlankCanvas(cfg) {
+  disposeCanvas();
+  currentTemplate = {
+    id: "blank", category: "blank", name: cfg.name,
+    unit: cfg.unit, width: cfg.width, height: cfg.height,
+    widthMM: cfg.widthMM, heightMM: cfg.heightMM
+  };
+  currentProjectId = null;
+  currentProjectName = cfg.name;
+  canvas = new fabric.Canvas("fabric-canvas", { width: cfg.width, height: cfg.height, preserveObjectStacking: true });
+  canvas.backgroundColor = cfg.background || "#ffffff";
+  canvas.renderAll();
+  setupCanvasEvents();
+  history = []; historyIndex = -1;
+  pushHistory();
+  dirty = false;
+  $("#current-project-name").textContent = currentProjectName;
+  showView("editor");
+  renderPropertiesPanel();
+}
+
 async function openProject(projectId) {
   const p = loadProjects().find((x) => x.id === projectId);
   if (!p) return;
@@ -539,6 +637,76 @@ async function insertLogo() {
   const scale = 180 / img.width;
   img.set({ left: c.left, top: c.top, scaleX: scale, scaleY: scale });
   canvas.add(img); canvas.setActiveObject(img); canvas.renderAll();
+  pushHistory();
+}
+
+/* ---------------------------------------------------------------------
+   Cliparts
+   --------------------------------------------------------------------- */
+
+let activeClipartCategory = CLIPART_CATEGORIES[0].key;
+
+function clipartIconSVG(def, color) {
+  if (def.kind === "ring") {
+    return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="${color}" stroke-width="3.5"/></svg>`;
+  }
+  if (def.kind === "frame") {
+    return `<svg viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" rx="3" fill="none" stroke="${color}" stroke-width="3" stroke-dasharray="4 3"/></svg>`;
+  }
+  if (def.kind === "dots") {
+    return `<svg viewBox="0 0 40 12"><circle cx="4" cy="6" r="3" fill="${color}"/><circle cx="14" cy="6" r="3" fill="${color}"/><circle cx="24" cy="6" r="3" fill="${color}"/><circle cx="34" cy="6" r="3" fill="${color}"/></svg>`;
+  }
+  const [w, h] = def.viewBox;
+  const strokeAttrs = def.strokeOnly
+    ? `fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"`
+    : `fill="${color}"`;
+  return `<svg viewBox="0 0 ${w} ${h}"><path d="${def.path}" ${strokeAttrs}/></svg>`;
+}
+
+function renderClipartTabs() {
+  const wrap = $("#clipart-tabs");
+  wrap.innerHTML = CLIPART_CATEGORIES.map((c) =>
+    `<button data-cat="${c.key}" class="${c.key === activeClipartCategory ? "active" : ""}">${c.label}</button>`
+  ).join("");
+  $$("button", wrap).forEach((btn) => {
+    btn.addEventListener("click", () => { activeClipartCategory = btn.dataset.cat; renderClipartGrid(); renderClipartTabs(); });
+  });
+}
+
+function renderClipartGrid() {
+  const grid = $("#clipart-grid");
+  const list = CLIPARTS.filter((c) => c.category === activeClipartCategory);
+  grid.innerHTML = list.map((c) => `
+    <button class="clipart-btn" data-id="${c.id}" title="${c.label}">
+      ${clipartIconSVG(c, BRAND.gold1)}
+      <span>${c.label}</span>
+    </button>`).join("");
+  $$(".clipart-btn", grid).forEach((btn) => btn.addEventListener("click", () => insertClipart(btn.dataset.id)));
+}
+
+function insertClipart(id) {
+  const def = CLIPARTS.find((c) => c.id === id);
+  if (!def || !canvas) return;
+  const c = centerPoint();
+  const targetSize = 160;
+  let obj;
+  if (def.kind === "ring") {
+    obj = new fabric.Circle({ radius: 70, fill: "transparent", stroke: BRAND.gold1, strokeWidth: 10 });
+  } else if (def.kind === "frame") {
+    obj = new fabric.Rect({ width: 300, height: 200, fill: "transparent", stroke: BRAND.gold1, strokeWidth: 4, strokeDashArray: [14, 10], rx: 10, ry: 10 });
+  } else if (def.kind === "dots") {
+    const circles = [0, 1, 2, 3, 4].map((i) => new fabric.Circle({ radius: 8, left: i * 34, top: 0, fill: BRAND.gold1 }));
+    obj = new fabric.Group(circles);
+  } else {
+    const opts = def.strokeOnly
+      ? { fill: null, stroke: BRAND.gold1, strokeWidth: 9, strokeLineCap: "round", strokeLineJoin: "round" }
+      : { fill: BRAND.gold1 };
+    obj = new fabric.Path(def.path, opts);
+    const factor = targetSize / Math.max(obj.width, obj.height);
+    obj.scale(factor);
+  }
+  obj.set({ left: c.left + 100 - obj.getScaledWidth() / 2, top: c.top + 20 - obj.getScaledHeight() / 2 });
+  canvas.add(obj); canvas.setActiveObject(obj); canvas.renderAll();
   pushHistory();
 }
 
@@ -886,6 +1054,9 @@ function init() {
   $("#btn-add-line").addEventListener("click", () => addShape("line"));
   $("#btn-add-logo").addEventListener("click", insertLogo);
   $("#btn-add-image").addEventListener("click", () => { pendingReplaceTarget = null; $("#file-input-image").click(); });
+  $("#btn-blank-design").addEventListener("click", openBlankDesignModal);
+  renderClipartTabs();
+  renderClipartGrid();
 
   $("#file-input-image").addEventListener("change", (e) => {
     if (e.target.files[0]) handleImageFile(e.target.files[0]);

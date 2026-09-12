@@ -26,7 +26,8 @@ const CATEGORIES = [
   { key: "flyer", label: "Flyer" },
   { key: "card", label: "Visitenkarten" },
   { key: "magazine", label: "Magazin-Seiten" },
-  { key: "social", label: "Social Media Posts" }
+  { key: "social", label: "Social Media Posts" },
+  { key: "publisher", label: "Weitere Vorlagen" }
 ];
 
 function goldFill(angle) {
@@ -194,6 +195,98 @@ const TEMPLATES = [
       { type: "text", left: 60, top: 220, width: 560, text: "GROSSER\nTITEL", fontSize: 68, fontWeight: 900, fill: BRAND.silver1, lineHeight: 1.05 },
       { type: "rect", left: 60, top: 460, width: 260, height: 10, rx: 5, ry: 5, fill: goldFill(0) },
       { type: "logo", left: 60, top: 40, width: 150 }
+    ]
+  },
+
+  // ---------------- WEITERE VORLAGEN (Publisher-Stil) ----------------
+  {
+    id: "brochure-trifold",
+    category: "publisher",
+    name: "Broschüre (3 Spalten, Falzblatt)",
+    unit: "mm", widthMM: 297, heightMM: 210,
+    width: mm(297), height: mm(210),
+    background: BRAND.bg,
+    objects: (() => {
+      const w = mm(297), h = mm(210), panel = w / 3;
+      return [
+        { type: "rect", left: panel, top: 0, width: panel, height: h, fill: BRAND.bgSoft },
+        { type: "rect", left: panel - 1, top: 0, width: 2, height: h, fill: BRAND.border },
+        { type: "rect", left: panel * 2 - 1, top: 0, width: 2, height: h, fill: BRAND.border },
+        // Panel 1: Titel / Cover
+        { type: "logo", left: 50, top: 60, width: 170 },
+        { type: "text", left: 50, top: h - 420, width: panel - 100, text: "IHR TITEL HIER", fontSize: 42, fontWeight: 800, fill: BRAND.silver1 },
+        { type: "text", left: 50, top: h - 320, width: panel - 100, text: "Kurzer Untertitel für die Titelseite", fontSize: 18, fontWeight: 600, fill: BRAND.gold1 },
+        { type: "rect", left: 50, top: h - 260, width: 70, height: 5, rx: 2, ry: 2, fill: goldFill(0) },
+        // Panel 2: Über uns
+        { type: "text", left: panel + 50, top: 60, width: panel - 100, text: "ÜBER UNS", fontSize: 15, fontWeight: 700, fill: BRAND.gold1 },
+        { type: "text", left: panel + 50, top: 100, width: panel - 100, text: "Kurzer Absatz über das Angebot – Text anklicken und durch eigenen Inhalt ersetzen.", fontSize: 16, fill: BRAND.textMuted, lineHeight: 1.6 },
+        { type: "image-placeholder", left: panel + 50, top: 320, width: panel - 100, height: h - 400, label: "+ Bild einfügen" },
+        // Panel 3: Kontakt
+        { type: "text", left: panel * 2 + 50, top: 60, width: panel - 100, text: "KONTAKT", fontSize: 15, fontWeight: 700, fill: BRAND.gold1 },
+        { type: "text", left: panel * 2 + 50, top: 100, width: panel - 100, text: "Jan Zoller\n0157 8 / 491 08 52\njzoentertainmet@outlook.com\n@JZoEntertainment", fontSize: 16, fill: BRAND.textMuted, lineHeight: 1.8 },
+        { type: "rect", left: panel * 2 + 50, top: h - 110, width: panel - 100, height: 46, rx: 23, ry: 23, fill: goldFill(0) },
+        { type: "text", left: panel * 2 + 76, top: h - 96, width: panel - 150, text: "Jetzt anfragen", fontSize: 16, fontWeight: 700, fill: "#1a0d02" }
+      ];
+    })()
+  },
+  {
+    id: "newsletter",
+    category: "publisher",
+    name: "Newsletter (A4)",
+    unit: "mm", widthMM: 210, heightMM: 297,
+    width: mm(210), height: mm(297),
+    background: BRAND.bg,
+    objects: [
+      { type: "logo", left: 70, top: 50, width: 150 },
+      { type: "text", left: mm(210) - 380, top: 80, width: 310, text: "NEWSLETTER · 2026", fontSize: 14, fontWeight: 700, fill: BRAND.gold1, textAlign: "right" },
+      { type: "rect", left: 70, top: 150, width: mm(210) - 140, height: 1, fill: BRAND.border },
+      { type: "text", left: 70, top: 185, width: 1100, text: "Neuigkeiten von JZo Entertainment", fontSize: 38, fontWeight: 800, fill: BRAND.silver1 },
+      // Block 1
+      { type: "image-placeholder", left: 70, top: 280, width: 320, height: 220, label: "+ Bild" },
+      { type: "text", left: 420, top: 290, width: 750, text: "Kommendes Event", fontSize: 22, fontWeight: 700, fill: BRAND.gold1 },
+      { type: "text", left: 420, top: 330, width: 750, text: "Kurzer Text zum nächsten Termin – Datum, Ort und was die Gäste erwartet.", fontSize: 16, fill: BRAND.textMuted, lineHeight: 1.6 },
+      { type: "rect", left: 70, top: 540, width: mm(210) - 140, height: 1, fill: BRAND.border },
+      // Block 2
+      { type: "image-placeholder", left: 70, top: 580, width: 320, height: 220, label: "+ Bild" },
+      { type: "text", left: 420, top: 590, width: 750, text: "Neues Angebot", fontSize: 22, fontWeight: 700, fill: BRAND.gold1 },
+      { type: "text", left: 420, top: 630, width: 750, text: "Beschreibung des neuen Angebots oder Pakets – Preis, Leistungen, Vorteile.", fontSize: 16, fill: BRAND.textMuted, lineHeight: 1.6 },
+      { type: "rect", left: 70, top: 840, width: mm(210) - 140, height: 1, fill: BRAND.border },
+      // Block 3
+      { type: "image-placeholder", left: 70, top: 880, width: 320, height: 220, label: "+ Bild" },
+      { type: "text", left: 420, top: 890, width: 750, text: "Aktuelles Projekt", fontSize: 22, fontWeight: 700, fill: BRAND.gold1 },
+      { type: "text", left: 420, top: 930, width: 750, text: "Kurzer Rückblick auf ein aktuelles Foto-/Video-Projekt.", fontSize: 16, fill: BRAND.textMuted, lineHeight: 1.6 },
+      { type: "text", left: 70, top: mm(297) - 100, width: mm(210) - 140, text: "Jan Zoller · 0157 8 / 491 08 52 · jzoentertainmet@outlook.com · @JZoEntertainment", fontSize: 13, fill: BRAND.textMuted, textAlign: "center" }
+    ]
+  },
+  {
+    id: "invitation-card",
+    category: "publisher",
+    name: "Einladungskarte (A6)",
+    unit: "mm", widthMM: 105, heightMM: 148,
+    width: mm(105), height: mm(148),
+    background: BRAND.bg,
+    objects: [
+      { type: "logo", left: mm(105) / 2 - 85, top: 60, width: 170 },
+      { type: "text", left: 0, top: 230, width: mm(105), text: "WIR LADEN HERZLICH EIN", fontSize: 14, fontWeight: 700, fill: BRAND.gold1, textAlign: "center" },
+      { type: "text", left: 40, top: 270, width: mm(105) - 80, text: "Event-Titel", fontSize: 36, fontWeight: 800, fill: BRAND.silver1, textAlign: "center" },
+      { type: "rect", left: mm(105) / 2 - 35, top: 360, width: 70, height: 4, rx: 2, ry: 2, fill: goldFill(0) },
+      { type: "text", left: 40, top: 400, width: mm(105) - 80, text: "Datum · Uhrzeit\nOrt der Veranstaltung", fontSize: 18, fill: BRAND.textMuted, textAlign: "center", lineHeight: 1.6 },
+      { type: "text", left: 40, top: mm(148) - 130, width: mm(105) - 80, text: "Über eine Rückmeldung freuen wir uns:", fontSize: 12, fill: BRAND.textMuted, textAlign: "center" },
+      { type: "text", left: 40, top: mm(148) - 100, width: mm(105) - 80, text: "0157 8 / 491 08 52", fontSize: 15, fontWeight: 600, fill: BRAND.gold1, textAlign: "center" }
+    ]
+  },
+  {
+    id: "greeting-card",
+    category: "publisher",
+    name: "Grußkarte (quadratisch)",
+    unit: "mm", widthMM: 148, heightMM: 148,
+    width: mm(148), height: mm(148),
+    background: BRAND.bg,
+    objects: [
+      { type: "image-placeholder", left: 0, top: 0, width: mm(148), height: Math.round(mm(148) * 0.62), label: "+ Bild einfügen" },
+      { type: "rect", left: 0, top: Math.round(mm(148) * 0.62), width: mm(148), height: mm(148) - Math.round(mm(148) * 0.62), fill: BRAND.bgSoft },
+      { type: "text", left: 40, top: Math.round(mm(148) * 0.62) + 40, width: mm(148) - 80, text: "Herzlichen Glückwunsch", fontSize: 30, fontWeight: 800, fill: BRAND.silver1, textAlign: "center" },
+      { type: "logo", left: mm(148) / 2 - 60, top: mm(148) - 90, width: 120 }
     ]
   }
 ];
