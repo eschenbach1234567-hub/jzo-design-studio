@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JZo Design Studio</title>
+  <meta name="description" content="Eigenes Design-Programm für Flyer, Visitenkarten, Magazin-Seiten und Social-Media-Posts im JZo-Look.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-brand">
+      <img src="assets/logo-transparent.png" alt="JZo Entertainment Logo">
+      <span class="title">JZo Design Studio<small>Flyer · Visitenkarten · Magazine · Social Media</small></span>
+    </div>
+    <nav class="topbar-nav">
+      <button data-view="gallery" class="active">Start</button>
+      <button data-view="editor">Editor</button>
+    </nav>
+  </header>
+
+  <!-- ===================== GALERIE ===================== -->
+  <main id="view-gallery" class="view active">
+    <div class="gallery-wrap">
+      <div class="gallery-intro">
+        <span class="eyebrow">Nur für Jan</span>
+        <h1>Eigene Designs erstellen</h1>
+        <p>Vorlage wählen, Texte &amp; Bilder anpassen, als PNG, JPEG oder PDF herunterladen.</p>
+      </div>
+
+      <div class="category-tabs" id="category-tabs"></div>
+
+      <div class="template-grid" id="template-grid"></div>
+
+      <div class="section-title">
+        <span>Meine Projekte</span>
+        <button class="btn btn-outline btn-small" id="btn-import-project">Projekt importieren</button>
+      </div>
+      <div id="project-empty" class="empty-hint" style="display:none;">
+        Noch keine gespeicherten Projekte. Wähl oben eine Vorlage aus und klick später im Editor auf „Speichern“.
+      </div>
+      <div class="template-grid" id="project-grid"></div>
+    </div>
+  </main>
+
+  <!-- ===================== EDITOR ===================== -->
+  <main id="view-editor" class="view">
+    <div class="editor-toolbar">
+      <button class="btn btn-outline btn-small" id="btn-new-from-editor">← Start</button>
+      <span class="divider"></span>
+      <button class="tool-btn" id="btn-undo" title="Rückgängig">↶</button>
+      <button class="tool-btn" id="btn-redo" title="Wiederholen">↷</button>
+      <span class="divider"></span>
+      <button class="tool-btn" id="btn-zoom-out" title="Verkleinern">−</button>
+      <button class="tool-btn" id="btn-zoom-fit" title="Einpassen">▢</button>
+      <button class="tool-btn" id="btn-zoom-in" title="Vergrößern">+</button>
+      <span class="spacer"></span>
+      <span id="current-project-name" style="color:var(--text-muted); font-size:13px;"></span>
+      <span class="spacer"></span>
+      <button class="btn btn-outline btn-small" id="btn-save">Speichern</button>
+      <button class="btn btn-primary btn-small" id="btn-export">Exportieren</button>
+    </div>
+
+    <div class="editor-body">
+      <aside class="editor-sidebar">
+        <h4>Text</h4>
+        <div class="sidebar-grid">
+          <button class="sidebar-btn" id="btn-add-heading">Überschrift</button>
+          <button class="sidebar-btn" id="btn-add-subheading">Unterzeile</button>
+          <button class="sidebar-btn wide" id="btn-add-body">Fließtext</button>
+        </div>
+        <h4>Formen</h4>
+        <div class="sidebar-grid">
+          <button class="sidebar-btn" id="btn-add-rect">Rechteck</button>
+          <button class="sidebar-btn" id="btn-add-circle">Kreis</button>
+          <button class="sidebar-btn wide" id="btn-add-line">Linie/Balken</button>
+        </div>
+        <h4>Bilder &amp; Logo</h4>
+        <div class="sidebar-grid">
+          <button class="sidebar-btn" id="btn-add-image">Foto einfügen</button>
+          <button class="sidebar-btn" id="btn-add-logo">Logo einfügen</button>
+        </div>
+        <h4>Hinweis</h4>
+        <p style="font-size:12px;color:var(--text-muted);line-height:1.6;">
+          Bild-Platzhalter (gestrichelt) mit Doppelklick anklicken, um dein eigenes Foto einzusetzen.
+        </p>
+      </aside>
+
+      <div class="canvas-wrap">
+        <canvas id="fabric-canvas"></canvas>
+      </div>
+
+      <aside class="editor-properties" id="properties-panel">
+        <div class="empty-props">Element auswählen,<br>um es zu bearbeiten.</div>
+      </aside>
+    </div>
+  </main>
+
+  <div id="modal-root"></div>
+
+  <input type="file" id="file-input-image" accept="image/*" style="display:none;">
+  <input type="file" id="file-input-bg" accept="image/*" style="display:none;">
+  <input type="file" id="file-input-import" accept="application/json" style="display:none;">
+
+  <script src="vendor/fabric.min.js"></script>
+  <script src="vendor/jspdf.umd.min.js"></script>
+  <script src="js/templates.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
